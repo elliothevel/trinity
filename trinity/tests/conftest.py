@@ -8,17 +8,18 @@ DATA_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'data')
 
 
-@pytest.fixture
-def expected_outcomes():
-    """Success rates published in the original study."""
-    filepath = os.path.join(DATA_DIR, 'outcomes.csv')
+@pytest.fixture(params=[1995, 2009])
+def expected_outcomes(request):
+    """Success rates published in the original and updated studies."""
+    filepath = os.path.join(DATA_DIR, f'outcomes_{request.param}.csv')
     with open(filepath) as fp:
         reader = csv.DictReader(fp)
-        return [{'stock_allocation': float(row['stock_allocation']),
-                 'years': int(row['years']),
-                 'withdrawal_rate': float(row['withdrawal_rate']),
-                 'success_rate': float(row['success_rate'])}
-                for row in reader]
+        results = [{'stock_allocation': float(row['stock_allocation']),
+                    'years': int(row['years']),
+                    'withdrawal_rate': float(row['withdrawal_rate']),
+                    'success_rate': float(row['success_rate'])}
+                   for row in reader]
+    return request.param, results
 
 
 @pytest.fixture

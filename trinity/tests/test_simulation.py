@@ -10,7 +10,9 @@ def test_main(script_runner):
         'trinity',
         '--stock-allocation', '0.75',
         '--years', '20',
-        '--withdrawal-rate', '0.04'
+        '--withdrawal-rate', '0.04',
+        '--start-year', '1926',
+        '--end-year', '1995'
     )
     assert ret.success
     assert ret.stdout == '1.0\n'
@@ -19,9 +21,10 @@ def test_main(script_runner):
 
 def test_calc_success_rate(expected_outcomes):
     """Ensure simulations align with published results."""
-    returns = trinity.get_returns()
+    end_year, cases = expected_outcomes
+    returns = trinity.get_returns(1926, end_year)
     error = 0.0
-    for case in expected_outcomes:
+    for case in cases:
         success_rate = simulation.calc_success_rate(
             returns,
             case['stock_allocation'],
@@ -35,7 +38,7 @@ def test_calc_success_rate(expected_outcomes):
     # error is less than some reasonable threshold.
     # When run against the same Ibbotson data used in the
     # original study, the mean average error is ~0.001.
-    mae = error / len(expected_outcomes)
+    mae = error / len(cases)
     assert mae < 0.03
 
 

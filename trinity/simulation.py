@@ -22,9 +22,21 @@ def main():
         type=float,
         required=True,
         help='Withdrawal rate as a fraction of initial portfolio size.')
+    parser.add_argument(
+        '--start-year',
+        type=int,
+        required=False,
+        help='First year of historical data to use.')
+    parser.add_argument(
+        '--end-year',
+        type=int,
+        required=False,
+        help='Last year of historical data to use.')
     args = parser.parse_args()
 
-    returns = get_returns()
+    returns = get_returns(
+        start_year=args.start_year, end_year=args.end_year)
+
     success_rate = calc_success_rate(
         returns,
         args.stock_allocation, args.years, args.withdrawal_rate)
@@ -55,8 +67,7 @@ def calc_success_rate(returns, stock_allocation, duration, withdrawal_rate):
         The fraction of periods for which the portfolio
         survived, rounded to two decimal places.
     """
-    # The trinity study is limited to 1926 to 1995.
-    periods = get_periods(1926, 1995, duration)
+    periods = get_periods(min(returns), max(returns), duration)
     successes = sum(
         simulate(returns, *period, stock_allocation, withdrawal_rate)
         for period in periods

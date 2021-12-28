@@ -6,12 +6,17 @@ import pkgutil
 import trinity.bonds as bonds
 
 
-def get_returns():
+def get_returns(start_year=None, end_year=None):
     """Calculate historic market returns.
 
     Based on Shiller's annual long term stock, bond, interest
     rate and consumption data, which can be found at
     http://www.econ.yale.edu/~shiller/data.htm
+
+    Parameters
+    ----------
+    start_year, end_year : int, optional
+        Include data between these years only.
 
     Returns
     -------
@@ -22,10 +27,17 @@ def get_returns():
     """
     shiller = read_shiller()
     bond_returns = get_bond_returns(shiller)
+
     returns = {}
     for current, future in zip(shiller[:-1], shiller[1:]):
         year = current['year']
-        returns[year] = annual_returns(current, future, bond_returns[year])
+        if start_year is not None and year < start_year:
+            continue
+        elif end_year is not None and year > end_year:
+            break
+        else:
+            returns[year] = annual_returns(current, future, bond_returns[year])
+
     return returns
 
 
