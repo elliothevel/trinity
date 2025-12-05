@@ -9,14 +9,14 @@ import trinity.simulation as simulation
 
 def test_main(script_runner: ScriptRunner) -> None:
     """Ensure simulations can be run from the main entrypoint."""
-    ret = script_runner.run(
+    ret = script_runner.run([
         'trinity',
         '--stock-allocation', '0.75',
         '--years', '20',
         '--withdrawal-rate', '0.04',
         '--start-year', '1926',
         '--end-year', '1995'
-    )
+    ])
     assert ret.success
     assert ret.stdout == '1.0\n'
     assert ret.stderr == ''
