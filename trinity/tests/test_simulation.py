@@ -1,10 +1,13 @@
+import typing
+
 import pytest
+from pytest_console_scripts import ScriptRunner
 
 import trinity
 import trinity.simulation as simulation
 
 
-def test_main(script_runner):
+def test_main(script_runner: ScriptRunner) -> None:
     """Ensure simulations can be run from the main entrypoint."""
     ret = script_runner.run(
         'trinity',
@@ -19,7 +22,40 @@ def test_main(script_runner):
     assert ret.stderr == ''
 
 
-def test_calc_success_rate(expected_outcomes):
+class SimulationResult(typing.TypedDict):
+    """An expected simulation result."""
+    stock_allocation: float
+    years: int
+    withdrawal_rate: float
+    success_rate: float
+
+
+
+@pytest.fixture(params=[1995, 2009])
+def expected_outcomes(
+    request: pytest.FixtureRequest,
+    read_data: typing.Callable[[str], list[dict[str, str]]],
+) -> tuple[int, list[SimulationResult]]:
+    """Success rates published in the original and updated studies."""
+    end_year = typing.cast(int, request.param)
+    rows = read_data(f'outcomes_{end_year}.csv')
+
+    results = [
+        SimulationResult(
+            stock_allocation=float(row['stock_allocation']),
+            years=int(row['years']),
+            withdrawal_rate=float(row['withdrawal_rate']),
+            success_rate=float(row['success_rate']),
+        )
+        for row in rows
+    ]
+
+    return end_year, results
+
+
+def test_calc_success_rate(
+    expected_outcomes: tuple[int, list[SimulationResult]],
+) -> None:
     """Ensure simulations align with published results."""
     end_year, cases = expected_outcomes
     returns = trinity.get_returns(1926, end_year)
@@ -50,7 +86,7 @@ def test_calc_success_rate(expected_outcomes):
     (25, 46),
     (30, 41),
 ])
-def test_get_periods(duration, expected):
+def test_get_periods(duration: int, expected: int) -> None:
     """Ensure correct year ranges are calculated."""
     periods = simulation.get_periods(1926, 1995, duration)
     assert len(periods) == expected

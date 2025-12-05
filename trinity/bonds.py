@@ -1,8 +1,14 @@
 """Bond fund simulation."""
 import collections
+import typing
 
 
-def simulate_returns(rates):
+Ladder = collections.deque[tuple[float, float]]
+
+
+def simulate_returns(
+    rates: typing.Iterable[tuple[float, float]],
+) -> list[float]:
     """Simulate total returns of a bond fund.
 
     Follows the approach described in
@@ -27,7 +33,7 @@ def simulate_returns(rates):
     """
     rates = iter(rates)
 
-    ladder = collections.deque(maxlen=10)
+    ladder: Ladder = collections.deque(maxlen=10)
     rate, rate_long = next(rates)
     init_ladder(ladder, rate_long)
     nav = calc_nav(ladder, rate, rate_long)
@@ -43,7 +49,7 @@ def simulate_returns(rates):
     return returns
 
 
-def step(ladder, rate_long):
+def step(ladder: Ladder, rate_long: float) -> None:
     """Advance the bond ladder by one year.
 
     Sells the bond in the ladder with one year left until
@@ -52,9 +58,9 @@ def step(ladder, rate_long):
 
     Parameters
     ----------
-    ladder : collections.deque
+    ladder
         A bond ladder.
-    rate_long : float
+    rate_long
         Current 10-year interest rate.
     """
     # Sum payments received this year.
@@ -68,16 +74,16 @@ def step(ladder, rate_long):
     ladder.append((capital, rate_long))
 
 
-def calc_nav(ladder, rate, rate_long):
+def calc_nav(ladder: Ladder, rate: float, rate_long: float) -> float:
     """Calculate the net asset value of a fund.
 
     Parameters
     ----------
-    ladder : collections.deque
+    ladder
         A bond ladder.
-    rate : float
+    rate
         Current 1-year interest rate.
-    rate_long : float
+    rate_long
         Current 10-year interest rate.
 
     Returns
@@ -92,7 +98,7 @@ def calc_nav(ladder, rate, rate_long):
     return nav
 
 
-def init_ladder(ladder, rate):
+def init_ladder(ladder: Ladder, rate: float) -> None:
     """Initialize a bond ladder.
 
     The ladder is bootstrapped by buying 10 bonds
@@ -103,9 +109,9 @@ def init_ladder(ladder, rate):
 
     Parameters
     ----------
-    ladder : collections.deque
+    ladder
         Empty bond ladder.
-    rate : float
+    rate
         Initial 10-year rate.
     """
     for n in range(10):
@@ -113,7 +119,7 @@ def init_ladder(ladder, rate):
         ladder.append((par, rate))
 
 
-def calc_rate(rate, rate_long, maturity):
+def calc_rate(rate: float, rate_long: float, maturity: int) -> float:
     """Approximate a current interest rate.
 
     Permforms linear interpolation based on the current
@@ -122,11 +128,11 @@ def calc_rate(rate, rate_long, maturity):
 
     Parameters
     ----------
-    rate : float
+    rate
         1-year interest rate.
-    rate_long : float
+    rate_long
         10-year interest rate.
-    maturity : int
+    maturity
         Maturity of the bond in years.
 
     Returns
@@ -137,18 +143,18 @@ def calc_rate(rate, rate_long, maturity):
     return rate + (rate_long - rate)*(maturity - 1) / 9
 
 
-def pv(rate, nper, pmt, fv):
+def pv(rate: float, nper: int, pmt: float, fv: float) -> float:
     """Calculate the present value of an asset.
 
     Parameters
     ----------
-    rate : float
+    rate
         Interest rate per period.
-    nper : int
+    nper
         Number of payment periods.
-    pmt : float
+    pmt
         Constant payment made each period.
-    fv : float
+    fv
         Future value, i.e., balance after the last
         payment is made.
 
