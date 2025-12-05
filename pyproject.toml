@@ -3,7 +3,7 @@ name = "trinity"
 version = "0.0.1"
 description = "Retirement calculator based on the Trinity study"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.13"
 dependencies = []
 
 [project.scripts]
