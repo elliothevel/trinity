@@ -71,6 +71,12 @@ Run the tests
 $ uv run pytest
 ```
 
+Run the linter and type checker
+```
+$ uv run ruff check
+$ uv run mypy
+```
+
 ### References
 
 <a id="1">[1]</a>
