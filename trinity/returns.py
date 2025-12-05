@@ -144,7 +144,7 @@ def read_shiller() -> list[MarketData]:
     """
     raw = pkgutil.get_data(__name__, 'data/shiller.csv')
     if raw is None:
-        raise RuntimeError('Could not read Shiller dataset.')
+        raise RuntimeError('Could not read Shiller data.')  # pragma: no cover
     buf = io.StringIO(raw.decode())
     reader = csv.DictReader(buf)
     return [{'year': int(row['YEAR']),
