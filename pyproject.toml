@@ -1,0 +1,36 @@
+[project]
+name = "trinity"
+version = "0.0.1"
+description = "Retirement calculator based on the Trinity study"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+trinity = "trinity.simulation:main"
+
+[tool.uv.build-backend]
+source-include = ["data/*.csv"]
+module-root = "."
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.mypy]
+files = ["trinity/**/*.py"]
+strict = true
+
+[build-system]
+requires = ["uv_build>=0.8.14,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.14.1",
+    "pytest>=8.3.5",
+    "pytest-console-scripts>=1.4.1",
+    "ruff>=0.14.8",
+]
