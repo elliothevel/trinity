@@ -19,6 +19,9 @@ line-length = 79
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
 [tool.mypy]
 files = ["trinity/**/*.py"]
 strict = true
