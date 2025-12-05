@@ -2,11 +2,34 @@
 import csv
 import io
 import pkgutil
+import typing
 
 import trinity.bonds as bonds
 
 
-def get_returns(start_year=None, end_year=None):
+class MarketData(typing.TypedDict):
+    """Market data for a single year."""
+    year: int
+    price: float
+    dividends: float
+    rate: float
+    rate_long: float
+    cpi: float
+
+
+class ReturnData(typing.TypedDict):
+    """Return data for a single year."""
+    stocks: float
+    bonds: float
+
+
+ReturnsByYear = dict[int, ReturnData]
+
+
+def get_returns(
+    start_year: int | None = None,
+    end_year: int | None = None,
+) -> ReturnsByYear:
     """Calculate historic market returns.
 
     Based on Shiller's annual long term stock, bond, interest
@@ -15,7 +38,7 @@ def get_returns(start_year=None, end_year=None):
 
     Parameters
     ----------
-    start_year, end_year : int, optional
+    start_year, end_year
         Include data between these years only.
 
     Returns
@@ -41,14 +64,18 @@ def get_returns(start_year=None, end_year=None):
     return returns
 
 
-def annual_returns(current, future, bond_return):
+def annual_returns(
+    current: MarketData,
+    future: MarketData,
+    bond_return: float,
+) -> ReturnData:
     """Calculate returns from successive years of Shiller data.
 
     Parameters
     ----------
-    current, future : dict
+    current, future
         Shiller data for the current year and the next year.
-    bond_return : float
+    bond_return
         Simulated nominal bond return for the current year.
 
     Returns
@@ -67,14 +94,14 @@ def annual_returns(current, future, bond_return):
     return {'stocks': stock_return, 'bonds': bond_return}
 
 
-def real_return(nominal_return, inflation_rate):
+def real_return(nominal_return: float, inflation_rate: float) -> float:
     """Calculate an inflation-adjusted return.
 
     Parameters
     ----------
-    nominal_return : float
+    nominal_return
         Nominal return.
-    inflation_rate : float
+    inflation_rate
         Inflation rate.
 
     Returns
@@ -85,12 +112,12 @@ def real_return(nominal_return, inflation_rate):
     return (1 + nominal_return) / (1 + inflation_rate) - 1
 
 
-def get_bond_returns(shiller):
+def get_bond_returns(shiller: list[MarketData]) -> dict[int, float]:
     """Get simulated bond returns by year.
 
     Parameters
     ----------
-    shiller : list of dict
+    shiller
         Raw data from the Shiller data set.
 
     Returns
@@ -107,7 +134,7 @@ def get_bond_returns(shiller):
     return dict(zip(years, bond_returns))
 
 
-def read_shiller():
+def read_shiller() -> list[MarketData]:
     """Read raw data from the Shiller data set.
 
     Returns
@@ -116,6 +143,8 @@ def read_shiller():
         Market data by year.
     """
     raw = pkgutil.get_data(__name__, 'data/shiller.csv')
+    if raw is None:
+        raise RuntimeError('Could not read Shiller data.')  # pragma: no cover
     buf = io.StringIO(raw.decode())
     reader = csv.DictReader(buf)
     return [{'year': int(row['YEAR']),

@@ -63,13 +63,18 @@ Use `trinity --help` for more documentation.
 
 Install the package and dev dependencies
 ```
-$ python setup.py develop
-$ pip install -r dev-requirements.txt
+$ uv sync
 ```
 
 Run the tests
 ```
-$ ./test.sh
+$ uv run pytest
+```
+
+Run the linter and type checker
+```
+$ uv run ruff check
+$ uv run mypy
 ```
 
 ### References

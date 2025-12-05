@@ -1,10 +1,10 @@
 """Tools for simulating retirement outcomes."""
 import argparse
 
-from trinity.returns import get_returns
+from trinity.returns import ReturnData, ReturnsByYear, get_returns
 
 
-def main():
+def main() -> None:
     """Simulate historical portfolio success rates."""
     parser = argparse.ArgumentParser(description='Retirement calculator')
     parser.add_argument(
@@ -44,20 +44,25 @@ def main():
     print(success_rate)
 
 
-def calc_success_rate(returns, stock_allocation, duration, withdrawal_rate):
+def calc_success_rate(
+    returns: ReturnsByYear,
+    stock_allocation: float,
+    duration: int,
+    withdrawal_rate: float,
+) -> float:
     """Calculate an historical portfolio success rate.
 
     Parameters
     ----------
-    returns : dict
+    returns
         Historical stock and bond returns by year.
         Keys are the years and values are dicts with the
         keys "stocks" and "bonds".
-    stock_allocation : float
+    stock_allocation
         Fraction of the portfolio allocated to equities.
-    duration : int
+    duration
         Length of withdrawal period in years.
-    withdrawal_rate : float
+    withdrawal_rate
         Annual withdrawal rate as a fraction of the initial
         portfolio size.
 
@@ -76,29 +81,35 @@ def calc_success_rate(returns, stock_allocation, duration, withdrawal_rate):
     return round(success_rate, 2)
 
 
-def simulate(returns, start_year, end_year, stock_allocation, withdrawal_rate):
+def simulate(
+    returns: ReturnsByYear,
+    start_year: int,
+    end_year: int,
+    stock_allocation: float,
+    withdrawal_rate: float,
+) -> bool:
     """Simulate portfolio performance.
 
     Parameters
     ----------
-    returns : dict
+    returns
         Historical stock and bond returns by year.
-    start_year, end_year : int
+    start_year, end_year
         Simulate performance between these years.
-    stock_allocation : float
+    stock_allocation
         Fraction of the portfolio allocated to equities.
-    withdrawal_rate : float
+    withdrawal_rate
         Annual withdrawal rate as a fraction of the initial
         portfolio size.
 
     Returns
     -------
-    success : bool
+    bool
         Whether the portfolio survived.
     """
     # Simulations are independent of initial portfolio size,
     # so use a fixed, realistic number.
-    balance = 1_000_000
+    balance = 1_000_000.0
     withdrawal = balance * withdrawal_rate
 
     for year in range(start_year, end_year + 1):
@@ -108,22 +119,27 @@ def simulate(returns, start_year, end_year, stock_allocation, withdrawal_rate):
     return balance > 0
 
 
-def update_portfolio(returns, withdrawal, stock_allocation, balance):
+def update_portfolio(
+    returns: ReturnData,
+    withdrawal: float,
+    stock_allocation: float,
+    balance: float,
+) -> float:
     """Update a portfolio based on performance in a single year.
 
     Parameters
     ----------
-    returns : dict
+    returns
         Stock and bond returns for a single year.
-    withdrawal : float
+    withdrawal
         Amount to withdraw from the portfolio. The withdrawal
         is assumed to take place at the end of the year after
         adjusting for inflation.
-    stock_allocation : float
+    stock_allocation
         The fraction of the portfolio to allocate to equities.
         The update calculations assume the portfolio is rebalanced
         annually.
-    balance : float
+    balance
         Portfolio balance at the beginning of the year.
 
     Returns
@@ -142,7 +158,11 @@ def update_portfolio(returns, withdrawal, stock_allocation, balance):
     )
 
 
-def get_periods(start_year, end_year, duration):
+def get_periods(
+    start_year: int,
+    end_year: int,
+    duration: int,
+) -> list[tuple[int, int]]:
     """Get periods over which to simulate returns.
 
     Find all continuous periods of `duration` years that
@@ -150,9 +170,9 @@ def get_periods(start_year, end_year, duration):
 
     Parameters
     ----------
-    start_year, end_year : int
+    start_year, end_year
         Starting and ending years.
-    duration : int
+    duration
         Return periods of this many years.
 
     Returns
